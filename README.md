@@ -5,6 +5,7 @@
 **Degree Program:** Master of Information Technology (MIT)  
 **Session:** 2026/2027 Academic Session — First Semester Continuous Assessment  
 **Student Name:** Samuel Orimolade  
+**Student ID:** 301923593
 **GitHub Repository:** [iam-ayokunumi/NIRE-Hotel-Suites-Reservation-System](https://github.com/iam-ayokunumi/NIRE-Hotel-Suites-Reservation-System)  
 
 ---
@@ -190,7 +191,6 @@ Get-Content "portfolio-1-database-design\seed_data.sql" | & "C:\xampp\mysql\bin\
 
 ## 🛡️ Academic Integrity & AI Use Declaration
 
-In compliance with the University’s Academic Integrity standards (Section 11 of the CA Brief):
-* **AI Tool Used:** Antigravity IDE (Powered by Gemini).
+* **AI Tool Used:** Gemini and ChatGPT.
 * **Application Scope:** Scaffolding initial schema templates, structuring DDL constraints, formatting Markdown documentation, and formalizing normalization functional dependency notation.
 * **Verification & Testing Protocol:** All SQL DDL scripts, constraints, and seed data records were manually reviewed, executed, and tested on a live MariaDB 10.4.32 database instance running via XAMPP. Every table creation and data insertion was verified through direct command-line execution and integrity testing.
