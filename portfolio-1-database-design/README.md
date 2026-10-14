@@ -2,8 +2,7 @@
 
 **Course:** MIT 8103 - Advanced Database Systems  
 **Institution:** MIVA Open University  
-**Case Study:** NIRE Hotel and Suites - Reservation System (Abuja, FCT, Nigeria)  
-**Marks Allocated:** 7 Marks  
+**Case Study:** NIRE Hotel and Suites - Reservation System (Abuja, FCT, Nigeria)
 
 ---
 
