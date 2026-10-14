@@ -21,7 +21,7 @@
 ## 2. Entity-Relationship Diagram (ERD)
 
 ### Visual Diagram
-![Entity Relationship Diagram](database-design.jpeg)
+![Entity Relationship Diagram](Orimolade_Samuel_301923593_database-design.jpeg)
 
 ### Mermaid Cardinality Diagram
 ```mermaid
@@ -109,7 +109,7 @@ erDiagram
 
 ## 4. Normalization Proof Summary
 
-A detailed mathematical and dependency proof is documented in [`normalization_analysis.md`](normalization_analysis.md). In brief:
+A detailed mathematical and dependency proof is documented in [`Orimolade_Samuel_301923593_normalization_analysis.md`](Orimolade_Samuel_301923593_normalization_analysis.md). In brief:
 * **1NF:** Elimination of repeating room and payment arrays into discrete tuples; all attributes are atomic scalar values with designated primary keys.
 * **2NF:** Elimination of partial functional dependencies on composite candidate key `{reservation_id, room_id}` by isolating room specifications into the `rooms` relation.
 * **3NF:** Elimination of transitive dependencies ($\text{reservation\_id} \to \text{guest\_id} \to \text{guest details}$ and $\text{room\_id} \to \text{room\_type\_id} \to \text{tariffs}$) by decoupling `guests` and `room_types`.
@@ -125,10 +125,10 @@ A detailed mathematical and dependency proof is documented in [`normalization_an
 ### Commands to Run and Verify
 ```powershell
 # 1. Execute DDL Schema
-Get-Content "portfolio-1-database-design\schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
+Get-Content "portfolio-1-database-design\Orimolade_Samuel_301923593_schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
 
 # 2. Populate Seed Dataset
-Get-Content "portfolio-1-database-design\seed_data.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
+Get-Content "portfolio-1-database-design\Orimolade_Samuel_301923593_seed_data.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
 
 # 3. Verify Table Counts
 & "C:\xampp\mysql\bin\mysql.exe" -u root -e "USE nire_hotel_db; SELECT 'room_types' AS tbl, COUNT(*) AS count FROM room_types UNION ALL SELECT 'rooms', COUNT(*) FROM rooms UNION ALL SELECT 'guests', COUNT(*) FROM guests UNION ALL SELECT 'reservations', COUNT(*) FROM reservations UNION ALL SELECT 'reservation_rooms', COUNT(*) FROM reservation_rooms UNION ALL SELECT 'payments', COUNT(*) FROM payments;"

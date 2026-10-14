@@ -52,13 +52,13 @@
 ```text
 advanced-database-portfolio/
 ├── portfolio-1-database-design/
-│   ├── schema.sql                         # Complete relational DDL with constraints
-│   ├── seed_data.sql                      # Realistic sample dataset (20 rooms, 12 guests, 15 bookings)
-│   ├── normalization_analysis.md          # Step-by-step mathematical proof (UNF to BCNF)
-│   ├── database-design.jpeg               # Visual Entity-Relationship Diagram (ERD)
-│   ├── mermaid-erd.mmd                    # Mermaid schema code definition
-│   └── README.md                          # Data dictionary and implementation guide
-└── README.md                              # Portfolio overview and activity roadmap
+│   ├── Orimolade_Samuel_301923593_schema.sql                # Complete relational DDL with constraints
+│   ├── Orimolade_Samuel_301923593_seed_data.sql             # Realistic sample dataset (20 rooms, 12 guests, 15 bookings)
+│   ├── Orimolade_Samuel_301923593_normalization_analysis.md # Step-by-step mathematical proof (UNF to BCNF)
+│   ├── Orimolade_Samuel_301923593_database-design.jpeg      # Visual Entity-Relationship Diagram (ERD)
+│   ├── Orimolade_Samuel_301923593_mermaid-erd.mmd           # Mermaid schema code definition
+│   └── Orimolade_Samuel_301923593_README.md                 # Data dictionary and implementation guide
+└── README.md                                                # Portfolio overview and activity roadmap
 ```
 
 ---
@@ -66,7 +66,7 @@ advanced-database-portfolio/
 ## 📊 Entity-Relationship Architecture (ERD)
 
 ### Visual Diagram
-![Entity Relationship Diagram](portfolio-1-database-design/database-design.jpeg)
+![Entity Relationship Diagram](portfolio-1-database-design/Orimolade_Samuel_301923593_database-design.jpeg)
 
 ### Interactive Mermaid ERD
 ```mermaid
@@ -141,10 +141,10 @@ erDiagram
 ## 🚀 Portfolio 1: Database Design & Modelling Deliverables
 
 Portfolio 1 establishes the relational foundation of the reservation architecture:
-1. **Relational Schema Definition ([`schema.sql`](portfolio-1-database-design/schema.sql)):** Fully normalized MySQL 8.0+ / MariaDB 10.4+ schema with InnoDB storage engine, primary/foreign keys, `CHECK` constraints, and cascading integrity policies.
-2. **Seed Dataset ([`seed_data.sql`](portfolio-1-database-design/seed_data.sql)):** Comprehensive sample data populating 5 room types, 20 physical rooms across 4 floors, 12 guests with authentic Nigerian KYC credentials, 15 reservations, multi-room allocations, and payment receipts.
-3. **Relational Normalization Proof ([`normalization_analysis.md`](portfolio-1-database-design/normalization_analysis.md)):** Mathematical functional dependency analysis demonstrating formal progression from Unnormalized Form (UNF) through 1NF, 2NF, 3NF, to **Boyce-Codd Normal Form (BCNF)**.
-4. **Data Dictionary & Documentation ([`portfolio-1-database-design/README.md`](portfolio-1-database-design/README.md)):** Detailed entity definitions, domain rules, and verification outputs.
+1. **Relational Schema Definition ([`Orimolade_Samuel_301923593_schema.sql`](portfolio-1-database-design/Orimolade_Samuel_301923593_schema.sql)):** Fully normalized MySQL 8.0+ / MariaDB 10.4+ schema with InnoDB storage engine, primary/foreign keys, `CHECK` constraints, and cascading integrity policies.
+2. **Seed Dataset ([`Orimolade_Samuel_301923593_seed_data.sql`](portfolio-1-database-design/Orimolade_Samuel_301923593_seed_data.sql)):** Comprehensive sample data populating 5 room types, 20 physical rooms across 4 floors, 12 guests with authentic Nigerian KYC credentials, 15 reservations, multi-room allocations, and payment receipts.
+3. **Relational Normalization Proof ([`Orimolade_Samuel_301923593_normalization_analysis.md`](portfolio-1-database-design/Orimolade_Samuel_301923593_normalization_analysis.md)):** Mathematical functional dependency analysis demonstrating formal progression from Unnormalized Form (UNF) through 1NF, 2NF, 3NF, to **Boyce-Codd Normal Form (BCNF)**.
+4. **Data Dictionary & Documentation ([`portfolio-1-database-design/Orimolade_Samuel_301923593_README.md`](portfolio-1-database-design/Orimolade_Samuel_301923593_README.md)):** Detailed entity definitions, domain rules, and verification outputs.
 
 ---
 
@@ -157,10 +157,10 @@ Portfolio 1 establishes the relational foundation of the reservation architectur
 ### Execution Commands (PowerShell)
 ```powershell
 # 1. Execute DDL Schema
-Get-Content "portfolio-1-database-design\schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
+Get-Content "portfolio-1-database-design\Orimolade_Samuel_301923593_schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
 
 # 2. Populate Seed Dataset
-Get-Content "portfolio-1-database-design\seed_data.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
+Get-Content "portfolio-1-database-design\Orimolade_Samuel_301923593_seed_data.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root
 
 # 3. Verify Table Row Counts
 & "C:\xampp\mysql\bin\mysql.exe" -u root -e "USE nire_hotel_db; SELECT 'room_types' AS tbl, COUNT(*) AS count FROM room_types UNION ALL SELECT 'rooms', COUNT(*) FROM rooms UNION ALL SELECT 'guests', COUNT(*) FROM guests UNION ALL SELECT 'reservations', COUNT(*) FROM reservations UNION ALL SELECT 'reservation_rooms', COUNT(*) FROM reservation_rooms UNION ALL SELECT 'payments', COUNT(*) FROM payments;"
