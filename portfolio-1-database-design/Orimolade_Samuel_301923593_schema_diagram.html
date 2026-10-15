@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>nire_hotel_db - Relational Database Schema</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    width: 1540px;
+    height: 1000px;
+    background-color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grid background pattern */
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(to right, rgba(203, 213, 225, 0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+  }
+
+  /* Title banner */
+  .schema-title-bar {
+    position: absolute;
+    top: 18px;
+    left: 45px;
+    right: 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 30;
+  }
+  .schema-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .schema-title .badge-db {
+    background: #0284c7;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .schema-title .badge-bcnf {
+    background: #10b981;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .schema-subtitle {
+    font-size: 12.5px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  /* SVG canvas for relation lines */
+  svg.connectors {
+    position: absolute;
+    inset: 0;
+    width: 1540px;
+    height: 1000px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Table cards */
+  .db-table {
+    position: absolute;
+    width: 285px;
+    background: #ffffff;
+    border: 1px solid #94a3b8;
+    border-radius: 7px;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+    z-index: 20;
+    font-size: 12.5px;
+  }
+
+  .table-header {
+    background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+    color: #ffffff;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13.5px;
+    border-bottom: 1px solid #172554;
+  }
+  .table-header .table-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .header-icon {
+    width: 15px;
+    height: 15px;
+    fill: #93c5fd;
+    flex-shrink: 0;
+  }
+  .db-prefix {
+    color: #93c5fd;
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+  .table-name {
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+  }
+  .gear-icon {
+    width: 14px;
+    height: 14px;
+    fill: #bfdbfe;
+    opacity: 0.85;
+  }
+
+  /* Rows */
+  .table-columns {
+    display: flex;
+    flex-direction: column;
+  }
+  .col-row {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .col-row:last-child {
+    border-bottom: none;
+  }
+  .col-row:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  .col-row:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  .col-row.highlight-pk {
+    background-color: #fefce8;
+  }
+  .col-row.highlight-fk {
+    background-color: #f0fdf4;
+  }
+
+  .col-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+  }
+  .col-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .col-name {
+    font-weight: 500;
+    color: #1e293b;
+    white-space: nowrap;
+  }
+  .col-row.pk .col-name {
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .col-type {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    color: #64748b;
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+  .badge-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+  }
+  .badge-pk {
+    background: #fef08a;
+    color: #854d0e;
+    border: 1px solid #fde047;
+  }
+  .badge-fk {
+    background: #bbf7d0;
+    color: #166534;
+    border: 1px solid #86efac;
+  }
+  .badge-uq {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+  }
+
+  /* Table Positions */
+  #tbl-room-types {
+    top: 85px;
+    left: 45px;
+  }
+  #tbl-rooms {
+    top: 425px;
+    left: 45px;
+  }
+  #tbl-reservation-rooms {
+    top: 85px;
+    left: 505px;
+  }
+  #tbl-reservations {
+    top: 365px;
+    left: 505px;
+  }
+  #tbl-payments {
+    top: 690px;
+    left: 505px;
+  }
+  #tbl-guests {
+    top: 215px;
+    left: 1015px;
+    width: 310px;
+  }
+
+  /* SVG Labels */
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Bottom Legend */
+  .legend-box {
+    position: absolute;
+    bottom: 18px;
+    left: 45px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px 20px;
+    display: flex;
+    gap: 22px;
+    font-size: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 25;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .legend-line {
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- Top Title Bar -->
+<div class="schema-title-bar">
+  <div class="schema-title">
+    <span class="badge-db">MySQL 8.0 / InnoDB</span>
+    <span>nire_hotel_db — Relational Database Design & Architecture</span>
+    <span class="badge-bcnf">3NF / BCNF Verified</span>
+  </div>
+  <div class="schema-subtitle">
+    Case Study: NIRE Hotel and Suites (Abuja, FCT, Nigeria) | MIT 8103 Advanced Database Systems
+  </div>
+</div>
+
+<!-- SVG Connectors -->
+<svg class="connectors">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.15" />
+    </filter>
+
+    <marker id="dot-pink" markerWidth="8" markerHeight="8" refX="4" refY="4">
+      <circle cx="4" cy="4" r="3.5" fill="#c026d3" stroke="#ffffff" stroke-width="1" />
+    </marker>
+    <marker id="dot-blue" markerWidth="8" markerHeight="8" refX="4" refY="4">
+      <circle cx="4" cy="4" r="3.5" fill="#2563eb" stroke="#ffffff" stroke-width="1" />
+    </marker>
+    <marker id="dot-green" markerWidth="8" markerHeight="8" refX="4" refY="4">
+      <circle cx="4" cy="4" r="3.5" fill="#16a34a" stroke="#ffffff" stroke-width="1" />
+    </marker>
+    <marker id="dot-teal" markerWidth="8" markerHeight="8" refX="4" refY="4">
+      <circle cx="4" cy="4" r="3.5" fill="#0891b2" stroke="#ffffff" stroke-width="1" />
+    </marker>
+    <marker id="dot-gold" markerWidth="8" markerHeight="8" refX="4" refY="4">
+      <circle cx="4" cy="4" r="3.5" fill="#d97706" stroke="#ffffff" stroke-width="1" />
+    </marker>
+  </defs>
+
+  <!-- ============================================================ -->
+  <!-- 1. room_types.room_type_id (PK) -> rooms.room_type_id (FK)   -->
+  <!-- ============================================================ -->
+  <!-- Header: 34px. Row 1 center: y = 85 + 34 + 14 = 133           -->
+  <!-- rooms Row 2 center: y = 425 + 34 + 28 + 14 = 501             -->
+  <path d="M 45 133 L 22 133 L 22 501 L 45 501" 
+        fill="none" stroke="#c026d3" stroke-width="2.4" 
+        marker-start="url(#dot-pink)" marker-end="url(#dot-pink)" />
+  <rect x="2" y="305" width="40" height="20" rx="4" fill="#fdf4ff" stroke="#c026d3" stroke-width="1" />
+  <text x="22" y="319" text-anchor="middle" fill="#c026d3" class="card-label">1 : N</text>
+
+  <!-- ============================================================ -->
+  <!-- 2. rooms.room_id (PK) -> reservation_rooms.room_id (FK)      -->
+  <!-- ============================================================ -->
+  <!-- rooms Row 1 center: y = 425 + 34 + 14 = 473                  -->
+  <!-- reservation_rooms Row 3 center: y = 85 + 34 + 28*2 + 14 = 189 -->
+  <path d="M 330 473 L 420 473 L 420 189 L 505 189" 
+        fill="none" stroke="#2563eb" stroke-width="2.4" 
+        marker-start="url(#dot-blue)" marker-end="url(#dot-blue)" />
+  <rect x="400" y="320" width="40" height="20" rx="4" fill="#eff6ff" stroke="#2563eb" stroke-width="1" />
+  <text x="420" y="334" text-anchor="middle" fill="#2563eb" class="card-label">1 : N</text>
+
+  <!-- ============================================================ -->
+  <!-- 3. reservations.reservation_id (PK) -> reservation_rooms (FK)-->
+  <!-- ============================================================ -->
+  <!-- reservations Row 1 center: y = 365 + 34 + 14 = 413           -->
+  <!-- reservation_rooms Row 2 center: y = 85 + 34 + 28 + 14 = 161  -->
+  <path d="M 505 413 L 455 413 L 455 161 L 505 161" 
+        fill="none" stroke="#16a34a" stroke-width="2.4" 
+        marker-start="url(#dot-green)" marker-end="url(#dot-green)" />
+  <rect x="435" y="270" width="40" height="20" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="1" />
+  <text x="455" y="284" text-anchor="middle" fill="#16a34a" class="card-label">1 : N</text>
+
+  <!-- ============================================================ -->
+  <!-- 4. reservations.reservation_id (PK) -> payments (FK)         -->
+  <!-- ============================================================ -->
+  <!-- reservations Row 1 center: y = 365 + 34 + 14 = 413           -->
+  <!-- payments Row 2 center: y = 690 + 34 + 28 + 14 = 766          -->
+  <path d="M 505 413 L 475 413 L 475 766 L 505 766" 
+        fill="none" stroke="#0891b2" stroke-width="2.4" 
+        marker-start="url(#dot-teal)" marker-end="url(#dot-teal)" />
+  <rect x="455" y="580" width="40" height="20" rx="4" fill="#ecfeff" stroke="#0891b2" stroke-width="1" />
+  <text x="475" y="594" text-anchor="middle" fill="#0891b2" class="card-label">1 : N</text>
+
+  <!-- ============================================================ -->
+  <!-- 5. guests.guest_id (PK) -> reservations.guest_id (FK)        -->
+  <!-- ============================================================ -->
+  <!-- guests Row 1 center: y = 215 + 34 + 14 = 263                 -->
+  <!-- reservations Row 2 center: y = 365 + 34 + 28 + 14 = 441      -->
+  <!-- reservations right edge: x = 505 + 285 = 790                 -->
+  <path d="M 1015 263 L 900 263 L 900 441 L 790 441" 
+        fill="none" stroke="#d97706" stroke-width="2.4" 
+        marker-start="url(#dot-gold)" marker-end="url(#dot-gold)" />
+  <rect x="880" y="340" width="40" height="20" rx="4" fill="#fffbeb" stroke="#d97706" stroke-width="1" />
+  <text x="900" y="354" text-anchor="middle" fill="#d97706" class="card-label">1 : N</text>
+</svg>
+
+<!-- ========================================== -->
+<!-- Table 1: room_types                        -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-room-types">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">room_types</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">room_type_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">🗝️</span>
+        <span class="col-name">type_name</span>
+      </div>
+      <div>
+        <span class="col-type">varchar(50)</span>
+        <span class="badge-tag badge-uq">UQ</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">base_rate</span>
+      </div>
+      <span class="col-type">decimal(10,2)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">max_occupancy</span>
+      </div>
+      <span class="col-type">int(11)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">bed_type</span>
+      </div>
+      <span class="col-type">varchar(50)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">T</span>
+        <span class="col-name">description</span>
+      </div>
+      <span class="col-type">text</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">⏱</span>
+        <span class="col-name">created_at</span>
+      </div>
+      <span class="col-type">timestamp</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Table 2: rooms                             -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-rooms">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">rooms</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">room_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row highlight-fk">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">room_type_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-fk">FK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">🗝️</span>
+        <span class="col-name">room_number</span>
+      </div>
+      <div>
+        <span class="col-type">varchar(10)</span>
+        <span class="badge-tag badge-uq">UQ</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">floor_number</span>
+      </div>
+      <span class="col-type">int(11)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">status</span>
+      </div>
+      <span class="col-type">varchar(20)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">⏱</span>
+        <span class="col-name">created_at</span>
+      </div>
+      <span class="col-type">timestamp</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Table 3: reservation_rooms (Junction)      -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-reservation-rooms">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">reservation_rooms</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">reservation_room_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row highlight-fk">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">reservation_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-fk">FK</span>
+      </div>
+    </div>
+    <div class="col-row highlight-fk">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">room_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-fk">FK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">nightly_rate</span>
+      </div>
+      <span class="col-type">decimal(10,2)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Table 4: reservations                      -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-reservations">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">reservations</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">reservation_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row highlight-fk">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">guest_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-fk">FK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">📅</span>
+        <span class="col-name">check_in_date</span>
+      </div>
+      <span class="col-type">date</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">📅</span>
+        <span class="col-name">check_out_date</span>
+      </div>
+      <span class="col-type">date</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">booking_status</span>
+      </div>
+      <span class="col-type">varchar(20)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">total_amount</span>
+      </div>
+      <span class="col-type">decimal(12,2)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">⏱</span>
+        <span class="col-name">created_at</span>
+      </div>
+      <span class="col-type">timestamp</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Table 5: payments                          -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-payments">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">payments</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">payment_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row highlight-fk">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">reservation_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-fk">FK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">⏱</span>
+        <span class="col-name">payment_date</span>
+      </div>
+      <span class="col-type">timestamp</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">#</span>
+        <span class="col-name">amount</span>
+      </div>
+      <span class="col-type">decimal(12,2)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">payment_method</span>
+      </div>
+      <span class="col-type">varchar(30)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">payment_status</span>
+      </div>
+      <span class="col-type">varchar(20)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">🗝️</span>
+        <span class="col-name">transaction_reference</span>
+      </div>
+      <div>
+        <span class="col-type">varchar(100)</span>
+        <span class="badge-tag badge-uq">UQ</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Table 6: guests                            -->
+<!-- ========================================== -->
+<div class="db-table" id="tbl-guests">
+  <div class="table-header">
+    <div class="table-name-wrap">
+      <svg class="header-icon" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 4v12h16V7H4z"/></svg>
+      <span class="db-prefix">nire_hotel_db.</span>
+      <span class="table-name">guests</span>
+    </div>
+    <svg class="gear-icon" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+  </div>
+  <div class="table-columns">
+    <div class="col-row pk highlight-pk">
+      <div class="col-left">
+        <span class="col-icon">🔑</span>
+        <span class="col-name">guest_id</span>
+      </div>
+      <div>
+        <span class="col-type">int(11)</span>
+        <span class="badge-tag badge-pk">PK</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">first_name</span>
+      </div>
+      <span class="col-type">varchar(50)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">last_name</span>
+      </div>
+      <span class="col-type">varchar(50)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">🗝️</span>
+        <span class="col-name">email</span>
+      </div>
+      <div>
+        <span class="col-type">varchar(100)</span>
+        <span class="badge-tag badge-uq">UQ</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">phone</span>
+      </div>
+      <span class="col-type">varchar(25)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">identity_type</span>
+      </div>
+      <span class="col-type">varchar(30)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">🗝️</span>
+        <span class="col-name">identity_number</span>
+      </div>
+      <div>
+        <span class="col-type">varchar(50)</span>
+        <span class="badge-tag badge-uq">UQ</span>
+      </div>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">T</span>
+        <span class="col-name">residential_address</span>
+      </div>
+      <span class="col-type">text</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">emergency_contact_name</span>
+      </div>
+      <span class="col-type">varchar(100)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">a</span>
+        <span class="col-name">emergency_contact_phone</span>
+      </div>
+      <span class="col-type">varchar(25)</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">T</span>
+        <span class="col-name">emergency_contact_address</span>
+      </div>
+      <span class="col-type">text</span>
+    </div>
+    <div class="col-row">
+      <div class="col-left">
+        <span class="col-icon">⏱</span>
+        <span class="col-name">created_at</span>
+      </div>
+      <span class="col-type">timestamp</span>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Legend -->
+<div class="legend-box">
+  <div class="legend-item">
+    <div class="legend-line" style="background:#c026d3;"></div>
+    <span><strong>room_types</strong> &rarr; <strong>rooms</strong> (1:N)</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:#2563eb;"></div>
+    <span><strong>rooms</strong> &rarr; <strong>reservation_rooms</strong> (1:N)</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:#16a34a;"></div>
+    <span><strong>reservations</strong> &rarr; <strong>reservation_rooms</strong> (1:N)</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:#0891b2;"></div>
+    <span><strong>reservations</strong> &rarr; <strong>payments</strong> (1:N)</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:#d97706;"></div>
+    <span><strong>guests</strong> &rarr; <strong>reservations</strong> (1:N)</span>
+  </div>
+</div>
+
+</body>
+</html>
