@@ -226,5 +226,4 @@ Get-Content "portfolio-2-query-optimisation\Orimolade_Samuel_301923593_execution
 ## 🛡️ Academic Integrity & AI Use Declaration
 
 * **AI Tool Used:** Gemini and ChatGPT.
-* **Application Scope:** Scaffolding initial schema templates, structuring DDL constraints, formatting Markdown documentation, and formalizing normalization functional dependency notation.
 * **Verification & Testing Protocol:** All SQL DDL scripts, constraints, and seed data records were manually reviewed, executed, and tested on a live MariaDB 10.4.32 database instance running via XAMPP. Every table creation and data insertion was verified through direct command-line execution and integrity testing.
